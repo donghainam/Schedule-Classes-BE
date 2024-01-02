@@ -1,6 +1,6 @@
-package namdh.dhbkhn.datn.service.dto.class_name;
+package namdh.dhbkhn.datn.service.dto.subject;
 
-public class NumClassesDTO {
+public class NumSubjectDTO {
 
     Long num;
 

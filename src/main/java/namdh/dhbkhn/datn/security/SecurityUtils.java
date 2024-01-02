@@ -97,4 +97,9 @@ public final class SecurityUtils {
     private static Stream<String> getAuthorities(Authentication authentication) {
         return authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
     }
+
+    public static boolean isCurrentUserInRole(String authority) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && getAuthorities(authentication).anyMatch(authority::equals);
+    }
 }

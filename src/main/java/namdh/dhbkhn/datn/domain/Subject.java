@@ -2,12 +2,11 @@ package namdh.dhbkhn.datn.domain;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import namdh.dhbkhn.datn.service.dto.class_name.ClassesInputDTO;
-import namdh.dhbkhn.datn.service.dto.class_name.ClassesOutputDTO;
+import namdh.dhbkhn.datn.service.dto.subject.SubjectOutputDTO;
 
 @Entity
-@Table(name = "classes")
-public class Classes extends AbstractAuditingEntity<Long> implements Serializable {
+@Table(name = "subject")
+public class Subject extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,20 +46,20 @@ public class Classes extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "department_name")
     private String departmentName;
 
-    public Classes() {}
+    public Subject() {}
 
-    public Classes(ClassesOutputDTO classesOutputDTO) {
-        this.id = classesOutputDTO.getId();
-        this.name = classesOutputDTO.getName();
-        this.classNote = classesOutputDTO.getClassNote();
-        this.courseCode = classesOutputDTO.getCourseCode();
-        this.startWeek = classesOutputDTO.getStartWeek();
-        this.numberOfLessons = classesOutputDTO.getNumberOfLessons();
-        this.numberOfWeekStudy = classesOutputDTO.getNumberOfWeekStudy();
-        this.semester = classesOutputDTO.getSemester();
-        this.conditions = classesOutputDTO.getConditions();
-        this.countWeekStudied = classesOutputDTO.getCountCondition();
-        this.departmentName = classesOutputDTO.getDepartmentName();
+    public Subject(SubjectOutputDTO subjectOutputDTO) {
+        this.id = subjectOutputDTO.getId();
+        this.name = subjectOutputDTO.getName();
+        this.classNote = subjectOutputDTO.getClassNote();
+        this.courseCode = subjectOutputDTO.getCourseCode();
+        this.startWeek = subjectOutputDTO.getStartWeek();
+        this.numberOfLessons = subjectOutputDTO.getNumberOfLessons();
+        this.numberOfWeekStudy = subjectOutputDTO.getNumberOfWeekStudy();
+        this.semester = subjectOutputDTO.getSemester();
+        this.conditions = subjectOutputDTO.getConditions();
+        this.countWeekStudied = subjectOutputDTO.getCountCondition();
+        this.departmentName = subjectOutputDTO.getDepartmentName();
     }
 
     public Long getId() {

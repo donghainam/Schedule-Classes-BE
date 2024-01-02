@@ -1,11 +1,10 @@
 package namdh.dhbkhn.datn.service.utils;
 
-import java.time.*;
-import java.time.temporal.ChronoField;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import namdh.dhbkhn.datn.domain.enumeration.WeekDay;
 import namdh.dhbkhn.datn.service.error.ResourceNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 

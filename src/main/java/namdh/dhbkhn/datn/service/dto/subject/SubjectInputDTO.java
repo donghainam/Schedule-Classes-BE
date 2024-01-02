@@ -1,6 +1,6 @@
-package namdh.dhbkhn.datn.service.dto.class_name;
+package namdh.dhbkhn.datn.service.dto.subject;
 
-public class ClassesInputDTO {
+public class SubjectInputDTO {
 
     private String name;
     private String classNote;

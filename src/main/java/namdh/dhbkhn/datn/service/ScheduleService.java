@@ -5,13 +5,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import namdh.dhbkhn.datn.domain.Classes;
+import javax.mail.search.SubjectTerm;
 import namdh.dhbkhn.datn.domain.Classroom;
 import namdh.dhbkhn.datn.domain.ClassroomStatus;
+import namdh.dhbkhn.datn.domain.Subject;
 import namdh.dhbkhn.datn.domain.User;
-import namdh.dhbkhn.datn.repository.ClassesRepository;
 import namdh.dhbkhn.datn.repository.ClassroomRepository;
 import namdh.dhbkhn.datn.repository.ClassroomStatusRepository;
+import namdh.dhbkhn.datn.repository.SubjectRepository;
 import namdh.dhbkhn.datn.repository.UserRepository;
 import namdh.dhbkhn.datn.security.SecurityUtils;
 import namdh.dhbkhn.datn.service.dto.schedule.ScheduleDTO;
@@ -35,7 +36,7 @@ public class ScheduleService {
 
     private final UserRepository userRepository;
 
-    private final ClassesRepository classesRepository;
+    private final SubjectRepository subjectRepository;
 
     private final ClassroomRepository classroomRepository;
 
@@ -44,13 +45,13 @@ public class ScheduleService {
     public ScheduleService(
         UserACL userACL,
         UserRepository userRepository,
-        ClassesRepository classesRepository,
+        SubjectRepository subjectRepository,
         ClassroomRepository classRoomRepository,
         ClassroomStatusRepository classroomStatusRepository
     ) {
         this.userACL = userACL;
         this.userRepository = userRepository;
-        this.classesRepository = classesRepository;
+        this.subjectRepository = subjectRepository;
         this.classroomRepository = classRoomRepository;
         this.classroomStatusRepository = classroomStatusRepository;
     }
@@ -110,11 +111,11 @@ public class ScheduleService {
             classroomStatus.setStatus(0);
         }
         this.classroomStatusRepository.saveAll(classroomStatuses);
-        List<Classes> clList = classesRepository.getClassesBySemester(semester);
-        for (Classes classes : clList) {
-            classes.setCountWeekStudied(0);
+        List<Subject> clList = subjectRepository.getClassesBySemester(semester);
+        for (Subject subject : clList) {
+            subject.setCountWeekStudied(0);
         }
-        this.classesRepository.saveAll(clList);
+        this.subjectRepository.saveAll(clList);
 
         // Get start, end week for semester
 
@@ -134,11 +135,11 @@ public class ScheduleService {
                 continue;
             }
             // Get all Classes
-            List<Classes> classesList = classesRepository.getAllClasses(i, semester, user.getId());
+            List<Subject> classesList = subjectRepository.getAllClasses(i, semester, user.getId());
             // Sort by priority
             this.sortByPriority(classesList);
 
-            for (Classes classes : classesList) {
+            for (Subject classes : classesList) {
                 int status;
                 if (classes.getNumberOfLessons() > 3) {
                     status = 0;
@@ -174,12 +175,12 @@ public class ScheduleService {
         return result;
     }
 
-    private void scheduleClasses(Classes classes, Classroom classroom, int[][] w, List<ScheduleDTO> list, int week) {
+    private void scheduleClasses(Subject subject, Classroom classroom, int[][] w, List<ScheduleDTO> list, int week) {
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 2; j++) {
-                if (w[i][j] >= classes.getNumberOfLessons()) {
+                if (w[i][j] >= subject.getNumberOfLessons()) {
                     String begin = this.getBegin(w[i][j] + 10 * j);
-                    String end = this.getEnd(w[i][j] + 10 * j, classes.getNumberOfLessons());
+                    String end = this.getEnd(w[i][j] + 10 * j, subject.getNumberOfLessons());
                     ClassroomStatus classroomStatus = Utils.requireExists(
                         classroomStatusRepository.findByClassroomIdAndWeek(classroom.getId(), week),
                         "error.classroomWeekNotFound"
@@ -190,7 +191,7 @@ public class ScheduleService {
                     if (beginList != null && endList != null) {
                         for (int n = 0; n < beginList.size(); n++) {
                             int session = getSession(endList.get(n));
-                            if (session == j && classes.getNumberOfLessons() == 3) {
+                            if (session == j && subject.getNumberOfLessons() == 3) {
                                 String oldBegin = beginList.get(n);
                                 if (session == 0) {
                                     if (oldBegin.equals("0645")) {
@@ -212,14 +213,14 @@ public class ScheduleService {
                             }
                         }
                     }
-                    List<Integer> weekNote = this.scheduleTheClassWeek(classes, classroom.getId(), week, begin, end, i, w[i][j]);
+                    List<Integer> weekNote = this.scheduleTheClassWeek(subject, classroom.getId(), week, begin, end, i, w[i][j]);
 
                     ScheduleDTO scheduleDTO = new ScheduleDTO();
-                    scheduleDTO.setCourseCode(classes.getCourseCode());
-                    scheduleDTO.setClassName(classes.getName());
-                    scheduleDTO.setClassNote(classes.getClassNote());
+                    scheduleDTO.setCourseCode(subject.getCourseCode());
+                    scheduleDTO.setClassName(subject.getName());
+                    scheduleDTO.setClassNote(subject.getClassNote());
                     scheduleDTO.setClassroom(classroom.getName());
-                    scheduleDTO.setDepartmentName(classes.getDepartmentName());
+                    scheduleDTO.setDepartmentName(subject.getDepartmentName());
                     scheduleDTO.setMaxSv(classroom.getMaxSv());
 
                     // TimeNote
@@ -228,7 +229,7 @@ public class ScheduleService {
                     scheduleDTO.addTimeNote("Begin", sessionStr + begin);
                     scheduleDTO.addTimeNote("End", sessionStr + end);
                     list.add(scheduleDTO);
-                    w[i][j] -= classes.getNumberOfLessons();
+                    w[i][j] -= subject.getNumberOfLessons();
                     return;
                 }
             }
@@ -236,7 +237,7 @@ public class ScheduleService {
     }
 
     private List<Integer> scheduleTheClassWeek(
-        Classes classes,
+        Subject subject,
         long classroomId,
         int weekFirst,
         String begin,
@@ -245,7 +246,7 @@ public class ScheduleService {
         int remainingLessons
     ) {
         List<Integer> result = new ArrayList<>();
-        int cnt = classes.getCountWeekStudied();
+        int cnt = subject.getCountWeekStudied();
         int lastWeek;
         if (weekFirst > 20) {
             lastWeek = 51;
@@ -253,7 +254,7 @@ public class ScheduleService {
             lastWeek = 23;
         }
         int session = this.getSession(end);
-        while (cnt < classes.getNumberOfWeekStudy() && weekFirst < lastWeek) {
+        while (cnt < subject.getNumberOfWeekStudy() && weekFirst < lastWeek) {
             if (weekFirst == 11 || weekFirst == 35) {
                 weekFirst++;
                 continue;
@@ -288,21 +289,21 @@ public class ScheduleService {
                 classroomStatus.addTimeNote(String.valueOf(weekDay) + 0, beginList);
                 classroomStatus.addTimeNote(String.valueOf(weekDay) + 1, endList);
                 // Handle condition classroom
-                w[weekDay][session] -= classes.getNumberOfLessons();
+                w[weekDay][session] -= subject.getNumberOfLessons();
                 if (!checkClassroom(w, 3)) {
                     classroomStatus.setStatus(2);
                 } else if (!checkClassroom(w, 5)) {
                     classroomStatus.setStatus(1);
                 }
                 classroomStatusRepository.save(classroomStatus);
-                weekFirst += classes.getConditions();
+                weekFirst += subject.getConditions();
                 cnt++;
             } else {
                 weekFirst++;
             }
         }
-        classes.setCountWeekStudied(cnt);
-        classesRepository.save(classes);
+        subject.setCountWeekStudied(cnt);
+        subjectRepository.save(subject);
         return result;
     }
 
@@ -325,7 +326,7 @@ public class ScheduleService {
         }
     }
 
-    private void sortByPriority(List<Classes> input) {
+    private void sortByPriority(List<Subject> input) {
         input.sort((cls1, cls2) -> {
             // Sort by startWeek in ascending order
             int startWeekComparison = Integer.compare(cls1.getStartWeek(), cls2.getStartWeek());

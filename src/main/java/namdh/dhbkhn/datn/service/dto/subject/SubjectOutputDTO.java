@@ -1,8 +1,8 @@
-package namdh.dhbkhn.datn.service.dto.class_name;
+package namdh.dhbkhn.datn.service.dto.subject;
 
-import namdh.dhbkhn.datn.domain.Classes;
+import namdh.dhbkhn.datn.domain.Subject;
 
-public class ClassesOutputDTO {
+public class SubjectOutputDTO {
 
     private Long id;
     private Long userId;
@@ -17,21 +17,21 @@ public class ClassesOutputDTO {
     private int countWeekStudied;
     private String departmentName;
 
-    public ClassesOutputDTO() {}
+    public SubjectOutputDTO() {}
 
-    public ClassesOutputDTO(Classes classes) {
-        this.id = classes.getId();
-        this.userId = classes.getUser().getId();
-        this.name = classes.getName();
-        this.classNote = classes.getClassNote();
-        this.courseCode = classes.getCourseCode();
-        this.startWeek = classes.getStartWeek();
-        this.numberOfLessons = classes.getNumberOfLessons();
-        this.semester = classes.getSemester();
-        this.conditions = classes.getConditions();
-        this.countWeekStudied = classes.getCountWeekStudied();
-        this.numberOfWeekStudy = classes.getNumberOfWeekStudy();
-        this.departmentName = classes.getDepartmentName();
+    public SubjectOutputDTO(Subject subject) {
+        this.id = subject.getId();
+        this.userId = subject.getUser().getId();
+        this.name = subject.getName();
+        this.classNote = subject.getClassNote();
+        this.courseCode = subject.getCourseCode();
+        this.startWeek = subject.getStartWeek();
+        this.numberOfLessons = subject.getNumberOfLessons();
+        this.semester = subject.getSemester();
+        this.conditions = subject.getConditions();
+        this.countWeekStudied = subject.getCountWeekStudied();
+        this.numberOfWeekStudy = subject.getNumberOfWeekStudy();
+        this.departmentName = subject.getDepartmentName();
     }
 
     public Long getId() {

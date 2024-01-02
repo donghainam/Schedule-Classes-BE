@@ -2,7 +2,6 @@ package namdh.dhbkhn.datn.service.dto.schedule;
 
 import java.util.HashMap;
 import java.util.Map;
-import namdh.dhbkhn.datn.domain.enumeration.WeekDay;
 
 public class ScheduleDTO {
 

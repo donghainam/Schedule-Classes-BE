@@ -2,10 +2,10 @@ package namdh.dhbkhn.datn.web.rest;
 
 import java.io.IOException;
 import java.util.List;
-import namdh.dhbkhn.datn.service.ClassesService;
-import namdh.dhbkhn.datn.service.dto.class_name.ClassesInputDTO;
-import namdh.dhbkhn.datn.service.dto.class_name.ClassesOutputDTO;
-import namdh.dhbkhn.datn.service.dto.class_name.NumClassesDTO;
+import namdh.dhbkhn.datn.service.SubjectService;
+import namdh.dhbkhn.datn.service.dto.subject.NumSubjectDTO;
+import namdh.dhbkhn.datn.service.dto.subject.SubjectInputDTO;
+import namdh.dhbkhn.datn.service.dto.subject.SubjectOutputDTO;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -21,12 +21,12 @@ import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
 @RequestMapping("/api/classes")
-public class ClassesResource {
+public class SubjectResource {
 
-    private final ClassesService classesService;
+    private final SubjectService subjectService;
 
-    public ClassesResource(ClassesService classNameService) {
-        this.classesService = classNameService;
+    public SubjectResource(SubjectService subjectService) {
+        this.subjectService = subjectService;
     }
 
     @GetMapping("/template")
@@ -44,39 +44,39 @@ public class ClassesResource {
 
     @PostMapping("/import")
     public void importClassViaExcel(@RequestParam("file") MultipartFile file) throws IOException {
-        classesService.importClassList(file.getInputStream());
+        subjectService.importClassList(file.getInputStream());
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ClassesOutputDTO> create(@RequestBody ClassesInputDTO classesInputDTO) {
-        return new ResponseEntity<>(this.classesService.create(classesInputDTO), HttpStatus.CREATED);
+    public ResponseEntity<SubjectOutputDTO> create(@RequestBody SubjectInputDTO subjectInputDTO) {
+        return new ResponseEntity<>(this.subjectService.create(subjectInputDTO), HttpStatus.CREATED);
     }
 
     @GetMapping("")
-    public ResponseEntity<List<ClassesOutputDTO>> getAll(Pageable pageable, @RequestParam(required = false) String name) {
-        Page<ClassesOutputDTO> page = this.classesService.getAll(pageable, name);
+    public ResponseEntity<List<SubjectOutputDTO>> getAll(Pageable pageable, @RequestParam(required = false) String name) {
+        Page<SubjectOutputDTO> page = this.subjectService.getAll(pageable, name);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClassesOutputDTO> getOne(@PathVariable(name = "id") long id) {
-        return new ResponseEntity<>(this.classesService.getOne(id), HttpStatus.OK);
+    public ResponseEntity<SubjectOutputDTO> getOne(@PathVariable(name = "id") long id) {
+        return new ResponseEntity<>(this.subjectService.getOne(id), HttpStatus.OK);
     }
 
     @GetMapping("/number-of-classes")
-    public ResponseEntity<NumClassesDTO> getNumForAllClasses() {
-        return new ResponseEntity<>(this.classesService.getNumbForAllClasses(), HttpStatus.OK);
+    public ResponseEntity<NumSubjectDTO> getNumForAllClasses() {
+        return new ResponseEntity<>(this.subjectService.getNumbForAllSubject(), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClassesOutputDTO> update(@PathVariable(name = "id") long id, @RequestBody ClassesInputDTO classesInputDTO) {
-        return new ResponseEntity<>(this.classesService.update(classesInputDTO, id), HttpStatus.OK);
+    public ResponseEntity<SubjectOutputDTO> update(@PathVariable(name = "id") long id, @RequestBody SubjectInputDTO subjectInputDTO) {
+        return new ResponseEntity<>(this.subjectService.update(subjectInputDTO, id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable(name = "id") long id) {
-        this.classesService.delete(id);
+        this.subjectService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

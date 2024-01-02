@@ -47,7 +47,7 @@
                                  referencedColumnNames="id"
                                  onDelete="CASCADE"/>
 
-        <createTable tableName="classes">
+        <createTable tableName="subject">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -81,7 +81,7 @@
         </createTable>
     </changeSet>
     <changeSet id="v1.0.2" author="namdh">
-        <addForeignKeyConstraint baseTableName="classes"
+        <addForeignKeyConstraint baseTableName="subject"
                                  baseColumnNames="user_id"
                                  constraintName="fk_classes_jhi_user"
                                  referencedTableName="jhi_user"
