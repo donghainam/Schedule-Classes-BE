@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--    Create new table ClassRoom, ClassroomStatus, Classes    -->
+    <changeSet id="v1.0.1" author="namdh">
+        <createTable tableName="classroom">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_sv" type="int"/>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </createTable>
+        <createTable tableName="classroom_status">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="classroom_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="week" type="int" defaultValueNumeric="0"/>
+            <column name="time_note" type="json"/>
+            <column name="status" type="int" defaultValueNumeric="0"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="classroom_status"
+                                 baseColumnNames="classroom_id"
+                                 constraintName="fk_classroom_status_classroom"
+                                 referencedTableName="classroom"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createTable tableName="classes">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)"/>
+            <column name="class_note" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="course_code" type="varchar(50)"/>
+            <column name="start_week" type="int" defaultValueNumeric="0"/>
+            <column name="number_of_lessons" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="number_of_week_study" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="semester" type="varchar(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="department_name" type="varchar(255)"/>
+            <column name="conditions" type="int" defaultValueNumeric="1"/>
+            <column name="count_week_studied" type="int" defaultValueNumeric="0"/>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="v1.0.2" author="namdh">
+        <addForeignKeyConstraint baseTableName="classes"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_classes_jhi_user"
+                                 referencedTableName="jhi_user"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="classroom"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_classroom_jhi_user"
+                                 referencedTableName="jhi_user"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>
