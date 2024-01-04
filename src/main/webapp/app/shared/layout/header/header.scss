@@ -17,7 +17,7 @@ Developement Ribbon
   position: absolute;
   top: 30px;
   white-space: nowrap;
-  width: 15em;
+  width: 12em;
   z-index: 99999;
   pointer-events: none;
   opacity: 0.75;
@@ -38,8 +38,8 @@ Developement Ribbon
 Navbar styles
 ========================================================================== */
 .jh-navbar {
-  background-color: #353d47;
-  padding: 0.2em 1em;
+  background: #353d47;
+  padding: 0 2em;
   .profile-image {
     margin: -10px 0px;
     height: 40px;
@@ -57,7 +57,7 @@ Navbar styles
   ul.navbar-nav {
     padding: 0.5em;
     .nav-item {
-      margin-left: 1.5rem;
+      margin-left: 1.8rem;
     }
   }
   a.nav-link {
@@ -105,7 +105,8 @@ Navbar styles
 }
 
 .brand-title {
-  font-size: 24px;
+  font-size: 20px;
+  padding: 0 0 0 10px;
   color: $header-color;
   &:hover {
     color: $header-color-hover;
