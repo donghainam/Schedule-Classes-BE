@@ -262,6 +262,15 @@ public class SubjectService {
         if (!userACL.canUpdate(classes.getUser().getId())) {
             throw new AccessForbiddenException("error.notUserCreateClass");
         }
+        User user = Utils.requireExists(SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin), "error.userNotFound");
+        Optional<Subject> optional = subjectRepository.findByCourseCodeAndClassNoteAndUserId(
+            subjectInputDTO.getCourseCode(),
+            subjectInputDTO.getClassNote(),
+            user.getId()
+        );
+        if (optional.isPresent()) {
+            throw new BadRequestException("error.classesExisted", null);
+        }
         String className = subjectInputDTO.getName();
         if (Utils.isAllSpaces(className) || className.isEmpty()) {
             throw new BadRequestException("error.classNameEmptyOrBlank", null);

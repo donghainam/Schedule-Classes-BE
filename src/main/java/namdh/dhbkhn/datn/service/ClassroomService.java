@@ -87,6 +87,11 @@ public class ClassroomService {
         if (!userACL.canUpdate(classroom.getUser().getId())) {
             throw new AccessForbiddenException("error.notUserCreateClassroom");
         }
+        User user = Utils.requireExists(SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin), "error.userNotFound");
+        Optional<Classroom> optional = classroomRepository.findByNameAndUserId(classroomInputDTO.getName(), user.getId());
+        if (optional.isPresent()) {
+            throw new BadRequestException("error.classroomNameExisted", null);
+        }
         String name = classroomInputDTO.getName();
         if (Utils.isAllSpaces(name) || name.isEmpty()) {
             throw new BadRequestException("error.classroomNameEmptyOrBlank", null);
@@ -100,6 +105,7 @@ public class ClassroomService {
         }
         classroom.setName(name);
         classroom.setMaxSv(Integer.parseInt(maxSv));
+        classroomRepository.save(classroom);
         classroomOutputDTO = new ClassroomOutputDTO(classroom);
         return classroomOutputDTO;
     }
