@@ -52,7 +52,7 @@ public class ScheduleService {
         this.classroomStatusRepository = classroomStatusRepository;
     }
 
-    public byte[] exportSchedule(String semester) {
+    public byte[] exportSchedule(String semester, int numOfDayPerWeek) {
         if (!userACL.isUser()) {
             throw new AccessForbiddenException("error.notUser");
         }
@@ -85,7 +85,7 @@ public class ScheduleService {
                 rowHead.getCell(j).setCellStyle(style);
             }
 
-            List<ScheduleDTO> scheduleDTOS = this.getSchedule(semester);
+            List<ScheduleDTO> scheduleDTOS = this.getSchedule(semester, numOfDayPerWeek);
             this.writeToSheet(sheet, scheduleDTOS, 1);
 
             workbook.write(output);
@@ -96,7 +96,7 @@ public class ScheduleService {
         return new byte[0];
     }
 
-    public List<ScheduleDTO> getSchedule(String semester) {
+    public List<ScheduleDTO> getSchedule(String semester, int numOfDayPerWeek) {
         List<ScheduleDTO> result = new ArrayList<>();
         User user = Utils.requireExists(SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin), "error.userNotFound");
 
@@ -152,15 +152,15 @@ public class ScheduleService {
                     continue;
                 }
                 Classroom classroom = classroomStatus.getClassroom();
-                int[][] w = new int[5][2];
+                int[][] w = new int[numOfDayPerWeek][2];
                 if (classroomStatus.getTimeNote() != null) {
-                    this.initArray(w);
-                    this.getTimeNote(w, classroomStatus);
+                    this.initArray(w, numOfDayPerWeek);
+                    this.getTimeNote(w, classroomStatus, numOfDayPerWeek);
                 } else {
-                    this.initArray(w);
+                    this.initArray(w, numOfDayPerWeek);
                 }
-                if (checkClassroom(w, classes.getNumberOfLessons())) {
-                    this.scheduleClasses(classes, classroom, w, result, i);
+                if (checkClassroom(w, classes.getNumberOfLessons(), numOfDayPerWeek)) {
+                    this.scheduleClasses(classes, classroom, w, result, i, numOfDayPerWeek);
                 } else {
                     log.info("Classrooms aren't enough for all classes");
                     throw new BadRequestException("error.classroomNotEnough", null);
@@ -170,8 +170,8 @@ public class ScheduleService {
         return result;
     }
 
-    private void scheduleClasses(Subject subject, Classroom classroom, int[][] w, List<ScheduleDTO> list, int week) {
-        for (int i = 0; i < 5; i++) {
+    private void scheduleClasses(Subject subject, Classroom classroom, int[][] w, List<ScheduleDTO> list, int week, int numOfDayPerWeek) {
+        for (int i = 0; i < numOfDayPerWeek; i++) {
             for (int j = 0; j < 2; j++) {
                 if (w[i][j] >= subject.getNumberOfLessons()) {
                     String begin = this.getBegin(w[i][j] + 10 * j);
@@ -208,7 +208,8 @@ public class ScheduleService {
                             }
                         }
                     }
-                    List<Integer> weekNote = this.scheduleTheClassWeek(subject, classroom.getId(), week, begin, end, i, w[i][j]);
+                    List<Integer> weekNote =
+                        this.scheduleTheClassWeek(subject, classroom.getId(), week, begin, end, i, w[i][j], numOfDayPerWeek);
 
                     ScheduleDTO scheduleDTO = new ScheduleDTO();
                     scheduleDTO.setCourseCode(subject.getCourseCode());
@@ -238,7 +239,8 @@ public class ScheduleService {
         String begin,
         String end,
         int weekDay,
-        int remainingLessons
+        int remainingLessons,
+        int numOfDayPerWeek
     ) {
         List<Integer> result = new ArrayList<>();
         int cnt = subject.getCountWeekStudied();
@@ -260,12 +262,12 @@ public class ScheduleService {
                 "error.classroomWeekNotFound"
             );
             // Get data of classroom
-            int[][] w = new int[5][2];
+            int[][] w = new int[numOfDayPerWeek][2];
             if (classroomStatus.getTimeNote() != null) {
-                this.initArray(w);
-                this.getTimeNote(w, classroomStatus);
+                this.initArray(w, numOfDayPerWeek);
+                this.getTimeNote(w, classroomStatus, numOfDayPerWeek);
             } else {
-                this.initArray(w);
+                this.initArray(w, numOfDayPerWeek);
             }
 
             List<String> beginList = classroomStatus.getTimeNoteExtra(String.valueOf(weekDay) + 0);
@@ -286,9 +288,9 @@ public class ScheduleService {
                 classroomStatus.addTimeNote(String.valueOf(weekDay) + 1, endList);
                 // Handle condition classroom
                 w[weekDay][session] -= subject.getNumberOfLessons();
-                if (!checkClassroom(w, 3)) {
+                if (!checkClassroom(w, 3, numOfDayPerWeek)) {
                     classroomStatus.setStatus(2);
-                } else if (!checkClassroom(w, 5)) {
+                } else if (!checkClassroom(w, 5, numOfDayPerWeek)) {
                     classroomStatus.setStatus(1);
                 }
                 classroomStatusRepository.save(classroomStatus);
@@ -339,8 +341,8 @@ public class ScheduleService {
         });
     }
 
-    private void getTimeNote(int[][] w, ClassroomStatus classroomStatus) {
-        for (int i = 0; i < 5; i++) {
+    private void getTimeNote(int[][] w, ClassroomStatus classroomStatus, int numOfDayPerWeek) {
+        for (int i = 0; i < numOfDayPerWeek; i++) {
             List<String> beginList = classroomStatus.getTimeNoteExtra(String.valueOf(i) + 0);
             List<String> endList = classroomStatus.getTimeNoteExtra(String.valueOf(i) + 1);
             if (endList != null && beginList != null) {
@@ -356,16 +358,16 @@ public class ScheduleService {
         }
     }
 
-    private void initArray(int[][] w) {
-        for (int i = 0; i < 5; i++) {
+    private void initArray(int[][] w, int numOfDayPerWeek) {
+        for (int i = 0; i < numOfDayPerWeek; i++) {
             for (int j = 0; j < 2; j++) {
                 w[i][j] = 6;
             }
         }
     }
 
-    private boolean checkClassroom(int[][] w, int numberOfLesson) {
-        for (int i = 0; i < 5; i++) {
+    private boolean checkClassroom(int[][] w, int numberOfLesson, int numOfDayPerWeek) {
+        for (int i = 0; i < numOfDayPerWeek; i++) {
             for (int j = 0; j < 2; j++) {
                 if (w[i][j] >= numberOfLesson) {
                     return true;

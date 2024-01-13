@@ -21,8 +21,8 @@ public class ScheduleResource {
     }
 
     @GetMapping("/excel")
-    public ResponseEntity<Resource> exportSchedule(@RequestParam String semester) {
-        byte[] bytes = scheduleService.exportSchedule(semester);
+    public ResponseEntity<Resource> exportSchedule(@RequestParam String semester, @RequestParam int numOfDayPerWeek) {
+        byte[] bytes = scheduleService.exportSchedule(semester, numOfDayPerWeek);
         ByteArrayResource resource = new ByteArrayResource(bytes);
         return ResponseEntity
             .ok()
