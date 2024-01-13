@@ -132,7 +132,12 @@ public class ScheduleService {
             this.sortByPriority(classesList);
 
             for (Subject classes : classesList) {
-                boolean containsWeekOff = checkWeekOff(classes.getWeekOff(), i);
+                boolean containsWeekOff;
+                if (classes.getWeekOff() == null) {
+                    containsWeekOff = false;
+                } else {
+                    containsWeekOff = checkWeekOff(classes.getWeekOff(), i);
+                }
                 if (containsWeekOff) {
                     continue;
                 }
@@ -252,7 +257,12 @@ public class ScheduleService {
         }
         int session = this.getSession(end);
         while (cnt < subject.getNumberOfWeekStudy() && weekFirst < lastWeek) {
-            boolean containsWeekOff = checkWeekOff(subject.getWeekOff(), weekFirst);
+            boolean containsWeekOff;
+            if (subject.getWeekOff() == null) {
+                containsWeekOff = false;
+            } else {
+                containsWeekOff = checkWeekOff(subject.getWeekOff(), weekFirst);
+            }
             if (containsWeekOff) {
                 weekFirst++;
                 continue;

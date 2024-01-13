@@ -248,6 +248,7 @@ public class SubjectService {
         classes.setSemester(semester);
         classes.setConditions(subjectInputDTO.getConditions());
         classes.setDepartmentName(subjectInputDTO.getDepartmentName());
+        classes.setWeekOff(subjectInputDTO.getWeekOff());
         subjectRepository.save(classes);
         return new SubjectOutputDTO(classes);
     }
@@ -302,6 +303,9 @@ public class SubjectService {
             throw new BadRequestException("error.conditionsIncorrect", null);
         }
         classes.setConditions(conditions);
+        classes.setDepartmentName(subjectInputDTO.getDepartmentName());
+        classes.setWeekOff(subjectInputDTO.getWeekOff());
+        subjectRepository.save(classes);
         classesOutputDTO = new SubjectOutputDTO(classes);
         return classesOutputDTO;
     }
