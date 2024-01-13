@@ -16,6 +16,7 @@ public class SubjectOutputDTO {
     private int conditions;
     private int countWeekStudied;
     private String departmentName;
+    private String weekOff;
 
     public SubjectOutputDTO() {}
 
@@ -32,6 +33,7 @@ public class SubjectOutputDTO {
         this.countWeekStudied = subject.getCountWeekStudied();
         this.numberOfWeekStudy = subject.getNumberOfWeekStudy();
         this.departmentName = subject.getDepartmentName();
+        this.weekOff = subject.getWeekOff();
     }
 
     public Long getId() {
@@ -136,5 +138,13 @@ public class SubjectOutputDTO {
 
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
+    }
+
+    public String getWeekOff() {
+        return weekOff;
+    }
+
+    public void setWeekOff(String weekOff) {
+        this.weekOff = weekOff;
     }
 }

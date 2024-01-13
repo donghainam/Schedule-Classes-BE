@@ -46,6 +46,9 @@ public class Subject extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "department_name")
     private String departmentName;
 
+    @Column(name = "week_off")
+    private String weekOff;
+
     public Subject() {}
 
     public Subject(SubjectOutputDTO subjectOutputDTO) {
@@ -60,6 +63,7 @@ public class Subject extends AbstractAuditingEntity<Long> implements Serializabl
         this.conditions = subjectOutputDTO.getConditions();
         this.countWeekStudied = subjectOutputDTO.getCountCondition();
         this.departmentName = subjectOutputDTO.getDepartmentName();
+        this.weekOff = subjectOutputDTO.getWeekOff();
     }
 
     public Long getId() {
@@ -156,5 +160,13 @@ public class Subject extends AbstractAuditingEntity<Long> implements Serializabl
 
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
+    }
+
+    public String getWeekOff() {
+        return weekOff;
+    }
+
+    public void setWeekOff(String weekOff) {
+        this.weekOff = weekOff;
     }
 }

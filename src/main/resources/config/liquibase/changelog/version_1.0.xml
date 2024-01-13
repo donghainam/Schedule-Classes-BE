@@ -71,6 +71,7 @@
             </column>
             <column name="department_name" type="varchar(255)"/>
             <column name="conditions" type="int" defaultValueNumeric="1"/>
+            <column name="week_off" type="varchar(255)"/>
             <column name="count_week_studied" type="int" defaultValueNumeric="0"/>
             <column name="created_by" type="varchar(50)">
                 <constraints nullable="false"/>

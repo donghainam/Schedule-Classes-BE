@@ -54,7 +54,7 @@ public class SubjectService {
                     classesOutputDTO.getClassNote(),
                     user.getId()
                 );
-                if (!optional.isPresent()) {
+                if (optional.isEmpty()) {
                     Subject classes = new Subject(classesOutputDTO);
                     classes.setUser(user);
                     subjectRepository.save(classes);
@@ -76,13 +76,13 @@ public class SubjectService {
 
                 // Read cells and set value for classes object
                 SubjectOutputDTO subjectOutputDTO = new SubjectOutputDTO();
-                for (int i = 0; i < 9; i++) {
+                for (int i = 0; i < 10; i++) {
                     Cell cell = row.getCell(i);
-                    if (cell == null && i != 1 && i != 3 && i != 7 && i != 8) {
+                    if (cell == null && i != 1 && i != 3 && i != 7 && i != 8 && i != 9) {
                         throw new BadRequestException("error.fieldNullOrEmpty", (row.getRowNum() + 1) + "-" + (i + 1));
                     }
                     Object cellValue = null;
-                    if (!((i == 1 || i == 3 || i == 7 || i == 8) && cell == null)) {
+                    if (!((i == 1 || i == 3 || i == 7 || i == 8 || i == 9) && cell == null)) {
                         cellValue = getCellValue(cell);
                     }
 
@@ -132,6 +132,26 @@ public class SubjectService {
                                 break;
                             }
                             subjectOutputDTO.setConditions(Integer.parseInt(Utils.handleDoubleNumber(cellValue.toString())));
+                            break;
+                        case 9:
+                            if (cellValue == null) {
+                                subjectOutputDTO.setWeekOff(null);
+                                break;
+                            }
+                            String stringWeek = Utils.handleWhitespace(cellValue.toString());
+                            String[] listWeek = stringWeek.split(",");
+                            StringBuilder stringWeekOff = new StringBuilder();
+                            if (listWeek.length == 1) {
+                                stringWeekOff.append(Integer.parseInt(Utils.handleDoubleNumber(listWeek[0])));
+                            } else {
+                                for (String s : listWeek) {
+                                    stringWeekOff.append(Integer.parseInt(s)).append(",");
+                                }
+                                if (stringWeekOff.length() > 0) {
+                                    stringWeekOff.deleteCharAt(stringWeekOff.length() - 1);
+                                }
+                            }
+                            subjectOutputDTO.setWeekOff(stringWeekOff.toString());
                             break;
                     }
                 }

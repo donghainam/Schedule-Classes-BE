@@ -11,6 +11,7 @@ public class SubjectInputDTO {
     private String semester;
     private int conditions;
     private String departmentName;
+    private String weekOff;
 
     public String getName() {
         return name;
@@ -82,5 +83,13 @@ public class SubjectInputDTO {
 
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
+    }
+
+    public String getWeekOff() {
+        return weekOff;
+    }
+
+    public void setWeekOff(String weekOff) {
+        this.weekOff = weekOff;
     }
 }

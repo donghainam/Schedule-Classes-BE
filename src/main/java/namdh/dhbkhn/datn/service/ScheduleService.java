@@ -38,21 +38,17 @@ public class ScheduleService {
 
     private final SubjectRepository subjectRepository;
 
-    private final ClassroomRepository classroomRepository;
-
     private final ClassroomStatusRepository classroomStatusRepository;
 
     public ScheduleService(
         UserACL userACL,
         UserRepository userRepository,
         SubjectRepository subjectRepository,
-        ClassroomRepository classRoomRepository,
         ClassroomStatusRepository classroomStatusRepository
     ) {
         this.userACL = userACL;
         this.userRepository = userRepository;
         this.subjectRepository = subjectRepository;
-        this.classroomRepository = classRoomRepository;
         this.classroomStatusRepository = classroomStatusRepository;
     }
 
@@ -130,16 +126,16 @@ public class ScheduleService {
             end = 45;
         }
         for (int i = start; i < end; i++) {
-            if (i == 11 || i == 35) {
-                // Skip week 11, 35
-                continue;
-            }
             // Get all Classes
             List<Subject> classesList = subjectRepository.getAllClasses(i, semester, user.getId());
             // Sort by priority
             this.sortByPriority(classesList);
 
             for (Subject classes : classesList) {
+                boolean containsWeekOff = checkWeekOff(classes.getWeekOff(), i);
+                if (containsWeekOff) {
+                    continue;
+                }
                 int status;
                 if (classes.getNumberOfLessons() > 3) {
                     status = 0;
@@ -153,8 +149,7 @@ public class ScheduleService {
                     user.getId()
                 );
                 if (classroomStatus == null) {
-                    log.info("Classrooms aren't enough for all classes");
-                    throw new BadRequestException("error.classroomNotEnough", null);
+                    continue;
                 }
                 Classroom classroom = classroomStatus.getClassroom();
                 int[][] w = new int[5][2];
@@ -249,13 +244,14 @@ public class ScheduleService {
         int cnt = subject.getCountWeekStudied();
         int lastWeek;
         if (weekFirst > 20) {
-            lastWeek = 51;
+            lastWeek = 46;
         } else {
             lastWeek = 23;
         }
         int session = this.getSession(end);
         while (cnt < subject.getNumberOfWeekStudy() && weekFirst < lastWeek) {
-            if (weekFirst == 11 || weekFirst == 35) {
+            boolean containsWeekOff = checkWeekOff(subject.getWeekOff(), weekFirst);
+            if (containsWeekOff) {
                 weekFirst++;
                 continue;
             }
@@ -542,5 +538,17 @@ public class ScheduleService {
                 num = 5;
         }
         return num;
+    }
+
+    private boolean checkWeekOff(String weekOff, int thisWeek) {
+        boolean containsWeek = false;
+        String[] listWeek = weekOff.split(",");
+        for (String str : listWeek) {
+            int intValue = Integer.parseInt(str);
+            if (intValue == thisWeek) {
+                containsWeek = true;
+            }
+        }
+        return containsWeek;
     }
 }
