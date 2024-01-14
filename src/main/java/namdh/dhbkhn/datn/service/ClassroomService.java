@@ -88,13 +88,16 @@ public class ClassroomService {
             throw new AccessForbiddenException("error.notUserCreateClassroom");
         }
         User user = Utils.requireExists(SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin), "error.userNotFound");
-        Optional<Classroom> optional = classroomRepository.findByNameAndUserId(classroomInputDTO.getName(), user.getId());
-        if (optional.isPresent()) {
-            throw new BadRequestException("error.classroomNameExisted", null);
-        }
         String name = classroomInputDTO.getName();
-        if (Utils.isAllSpaces(name) || name.isEmpty()) {
-            throw new BadRequestException("error.classroomNameEmptyOrBlank", null);
+        if (name != null) {
+            if (Utils.isAllSpaces(name) || name.isEmpty()) {
+                throw new BadRequestException("error.classroomNameEmptyOrBlank", null);
+            }
+            Optional<Classroom> optional = classroomRepository.findByNameAndUserId(classroomInputDTO.getName(), user.getId());
+            if (optional.isPresent() && !optional.get().getId().equals(classroom.getId())) {
+                throw new BadRequestException("error.classroomNameExisted", null);
+            }
+            classroom.setName(name);
         }
         String regexMaxSv = "^[0-9-\\s]*$";
         String maxSv = classroomInputDTO.getMaxSv();
@@ -103,7 +106,6 @@ public class ClassroomService {
         } else if (!maxSv.matches(regexMaxSv)) {
             throw new BadRequestException("error.maxSvInvalid", null);
         }
-        classroom.setName(name);
         classroom.setMaxSv(Integer.parseInt(maxSv));
         classroomRepository.save(classroom);
         classroomOutputDTO = new ClassroomOutputDTO(classroom);

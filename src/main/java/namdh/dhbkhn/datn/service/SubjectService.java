@@ -262,30 +262,35 @@ public class SubjectService {
         if (!userACL.canUpdate(classes.getUser().getId())) {
             throw new AccessForbiddenException("error.notUserCreateClass");
         }
-        User user = Utils.requireExists(SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin), "error.userNotFound");
-        Optional<Subject> optional = subjectRepository.findByCourseCodeAndClassNoteAndUserId(
-            subjectInputDTO.getCourseCode(),
-            subjectInputDTO.getClassNote(),
-            user.getId()
-        );
-        if (optional.isPresent()) {
-            throw new BadRequestException("error.classesExisted", null);
-        }
         String className = subjectInputDTO.getName();
         if (Utils.isAllSpaces(className) || className.isEmpty()) {
             throw new BadRequestException("error.classNameEmptyOrBlank", null);
         }
         classes.setName(className);
         String classNote = subjectInputDTO.getClassNote();
-        if (Utils.isAllSpaces(classNote) || classNote.isEmpty()) {
-            throw new BadRequestException("error.classNoteEmptyOrBlank", null);
-        }
-        classes.setClassNote(classNote);
         String courseCode = subjectInputDTO.getCourseCode();
-        if (Utils.isAllSpaces(courseCode) || courseCode.isEmpty()) {
-            throw new BadRequestException("error.courseCodeEmptyOrBlank", null);
+        if (classNote != null && courseCode != null) {
+            if (Utils.isAllSpaces(classNote) || classNote.isEmpty()) {
+                throw new BadRequestException("error.classNoteEmptyOrBlank", null);
+            }
+            if (Utils.isAllSpaces(courseCode) || courseCode.isEmpty()) {
+                throw new BadRequestException("error.courseCodeEmptyOrBlank", null);
+            }
+            User user = Utils.requireExists(
+                SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin),
+                "error.userNotFound"
+            );
+            Optional<Subject> optional = subjectRepository.findByCourseCodeAndClassNoteAndUserId(
+                subjectInputDTO.getCourseCode(),
+                subjectInputDTO.getClassNote(),
+                user.getId()
+            );
+            if (optional.isPresent() && !optional.get().getId().equals(classes.getId())) {
+                throw new BadRequestException("error.classesExisted", null);
+            }
+            classes.setClassNote(classNote);
+            classes.setCourseCode(courseCode);
         }
-        classes.setCourseCode(courseCode);
         int startWeek = subjectInputDTO.getStartWeek();
         if (startWeek < 1 || startWeek > 53) {
             throw new BadRequestException("error.startWeekInvalid", null);
